@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(rtk npx *)",
+      "Bash(mkdir -p \"/Users/light/Data/SCG/prompt plus/mini-web/testTopRank/app/api/search\")",
+      "Bash(npm install *)",
+      "Bash(rtk tsc *)"
+    ],
+    "additionalDirectories": [
+      "/Users/light/Data/SCG/prompt plus/mini-web/testTopRank/app/api"
+    ]
+  }
+}
