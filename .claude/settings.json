@@ -4,7 +4,10 @@
       "Bash(rtk npx *)",
       "Bash(mkdir -p \"/Users/light/Data/SCG/prompt plus/mini-web/testTopRank/app/api/search\")",
       "Bash(npm install *)",
-      "Bash(rtk tsc *)"
+      "Bash(rtk tsc *)",
+      "Bash(rtk ls *)",
+      "Bash(vercel --yes)",
+      "Bash(rtk gh *)"
     ],
     "additionalDirectories": [
       "/Users/light/Data/SCG/prompt plus/mini-web/testTopRank/app/api"
