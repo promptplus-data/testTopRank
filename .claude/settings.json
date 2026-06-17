@@ -8,7 +8,9 @@
       "Bash(rtk ls *)",
       "Bash(vercel --yes)",
       "Bash(rtk gh *)",
-      "Bash(gh api *)"
+      "Bash(gh api *)",
+      "Bash(git checkout *)",
+      "Bash(git merge *)"
     ],
     "additionalDirectories": [
       "/Users/light/Data/SCG/prompt plus/mini-web/testTopRank/app/api"

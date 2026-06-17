@@ -58,7 +58,7 @@ async function resolveSheetName(sheetId: string, gid: string, token: string): Pr
 // ── Types ──────────────────────────────────────────────────────────────────
 interface RankEntry { rank: number; name: string; amount: number; isTarget: boolean }
 interface CategoryResult { id: string; name: string; province: string; changfamilyPoints: number; storeRank: number; storeAmount: number; entries: RankEntry[] }
-interface SearchResult { storeId: string; storeName: string; regionName: string; generatedAt: string; overall: { changfamilyPoints: number; storeRank: number; storeAmount: number; entries: RankEntry[] }; categories: CategoryResult[] }
+interface SearchResult { storeId: string; storeCode: string; storeName: string; regionName: string; generatedAt: string; overall: { changfamilyPoints: number; storeRank: number; storeAmount: number; entries: RankEntry[] }; categories: CategoryResult[] }
 
 function parseNum(v: string | undefined): number {
   return parseFloat((v ?? '').replace(/,/g, '')) || 0
@@ -117,6 +117,7 @@ export async function GET(request: NextRequest) {
   // Column name (or 0-based index) — matches sample-data.csv headers by default
   const C = {
     id:         process.env.COL_STORE_ID       ?? 'StoreID',
+    code:       process.env.COL_CODE           ?? 'Code',
     name:       process.env.COL_STORE_NAME     ?? 'StoreName',
     province:   process.env.COL_PROVINCE       ?? 'Province',
     total:      process.env.COL_TOTAL_SALES    ?? 'TotalSales',
@@ -172,16 +173,19 @@ export async function GET(request: NextRequest) {
       overallPts: colIdx(C.overallPts),
       cementPts:  colIdx(C.cementPts),
       housingPts: colIdx(C.housingPts),
+      code:       colIdx(C.code),
     }
 
     const storeRow = rows.find(r => (r[ci.id] ?? '').trim().toLowerCase() === id.toLowerCase())
     if (!storeRow) return NextResponse.json({ result: null })
 
-    const storeName = storeRow[ci.name] ?? ''
-    const province  = storeRow[ci.province] ?? ''
+    const storeName  = storeRow[ci.name] ?? ''
+    const storeCode  = storeRow[ci.code] ?? id.toUpperCase()
+    const province   = storeRow[ci.province] ?? ''
 
     const result: SearchResult = {
       storeId: id.toUpperCase(),
+      storeCode,
       storeName,
       regionName: REGION_NAME,
       generatedAt: new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }),

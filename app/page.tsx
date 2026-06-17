@@ -6,7 +6,7 @@ import { useState, useRef, useEffect, useCallback } from 'react'
 interface RankEntry { rank: number; name: string; amount: number; isTarget: boolean }
 interface CategoryResult { id: string; name: string; province: string; changfamilyPoints: number; storeRank: number; storeAmount: number; entries: RankEntry[] }
 interface RankResult {
-  storeId: string; storeName: string; regionName: string; generatedAt: string
+  storeId: string; storeCode: string; storeName: string; regionName: string; generatedAt: string
   overall: { changfamilyPoints: number; storeRank: number; storeAmount: number; entries: RankEntry[] }
   categories: CategoryResult[]
 }
@@ -142,7 +142,7 @@ export default function Home() {
           </div>
           <div className="header-store">
             <div className="header-store-label">ร้านของคุณ</div>
-            <div className="header-store-name">{result.storeId} {result.storeName}</div>
+            <div className="header-store-name">{result.storeCode} {result.storeName}</div>
           </div>
         </div>
 
