@@ -235,6 +235,13 @@ body {
   color: #78350f;
 }
 
+.alert-rate-limit {
+  background: #fffbeb;
+  border: 1px solid #f59e0b;
+  color: #78350f;
+  align-items: flex-start;
+}
+
 .alert-icon {
   font-size: 1.125rem;
   flex-shrink: 0;
