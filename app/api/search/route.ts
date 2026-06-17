@@ -78,7 +78,12 @@ function rankRows(
     amount: parseNum(r[amountCol]),
   }))
   if (filterProvince && provinceCol != null) {
-    pool = pool.filter(c => c.province === filterProvince.trim())
+    // normalize: strip จ. prefix, lowercase, trim — handles "ชลบุรี" / "จ.ชลบุรี" / "จังหวัดชลบุรี"
+    const norm = (s: string) => s.toLowerCase().replace(/^จ\.?|^จังหวัด/u, '').trim()
+    const target = norm(filterProvince)
+    const filtered = pool.filter(c => norm(c.province) === target)
+    // fallback: if nobody else shares the province, skip filter (avoid empty category)
+    pool = filtered.length > 1 ? filtered : filtered.length === 1 ? filtered : pool
   }
   const sorted = pool.filter(c => c.amount > 0).sort((a, b) => b.amount - a.amount).map((c, i) => ({ ...c, rank: i + 1 }))
   const store = sorted.find(c => c.id.toLowerCase() === tid)
@@ -183,7 +188,7 @@ export async function GET(request: NextRequest) {
       overall: { changfamilyPoints: parseNum(storeRow[ci.overallPts]), ...rankRows(rows, ci.id, ci.name, ci.total, id, 10) },
       categories: [
         { id: 'cement',  name: 'ซีเมนต์',     province: `จ.${province}`, changfamilyPoints: parseNum(storeRow[ci.cementPts]),  ...rankRows(rows, ci.id, ci.name, ci.cement,  id, 5, province, ci.province) },
-        { id: 'housing', name: 'หลังคาฝาฝ้า', province: `จ.${province}`, changfamilyPoints: parseNum(storeRow[ci.housingPts]), ...rankRows(rows, ci.id, ci.name, ci.housing, id, 5, province, ci.province) },
+        { id: 'housing', name: 'หลังคาฝาฝ้า', province: `จ.${province}`, changfamilyPoints: parseNum(storeRow[ci.housingPts]), ...rankRows(rows, ci.id, ci.name, ci.housing, id, 1, province, ci.province) },
       ],
     }
 
