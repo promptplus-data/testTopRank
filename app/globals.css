@@ -492,6 +492,10 @@ body {
 	}
 }
 
+.text-red {
+	color: red;
+}
+
 /* .rank-row.target {
 	font-size: 16px;
 }
