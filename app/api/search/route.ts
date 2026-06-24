@@ -53,7 +53,10 @@ function maybeCleanup() {
 	}
 }
 
-const SCOPE = "https://www.googleapis.com/auth/spreadsheets.readonly";
+const SCOPE = [
+	"https://www.googleapis.com/auth/spreadsheets.readonly",
+	"https://www.googleapis.com/auth/drive.metadata.readonly",
+].join(" ");
 const TOKEN_URL = "https://oauth2.googleapis.com/token";
 const SHEETS_BASE = "https://sheets.googleapis.com/v4/spreadsheets";
 
@@ -131,6 +134,22 @@ async function getToken(email: string, privateKey: string): Promise<string> {
 	return token;
 }
 
+async function fetchSheetModifiedTime(
+	sheetId: string,
+	token: string,
+): Promise<string | null> {
+	const res = await fetch(
+		`https://www.googleapis.com/drive/v3/files/${sheetId}?fields=modifiedTime`,
+		{ headers: { Authorization: `Bearer ${token}` } },
+	);
+	if (!res.ok) return null;
+	const data = (await res.json()) as { modifiedTime?: string };
+	if (!data.modifiedTime) return null;
+	const bkk = new Date(new Date(data.modifiedTime).getTime() + 7 * 60 * 60 * 1000);
+	const p = (n: number) => String(n).padStart(2, "0");
+	return `${p(bkk.getUTCDate())}-${p(bkk.getUTCMonth() + 1)}-${bkk.getUTCFullYear()} ${p(bkk.getUTCHours())}:${p(bkk.getUTCMinutes())}:${p(bkk.getUTCSeconds())}`;
+}
+
 async function resolveSheetName(
 	sheetId: string,
 	gid: string,
@@ -173,6 +192,7 @@ interface SearchResult {
 	storeName: string;
 	regionName: string;
 	generatedAt: string;
+	dataUpdatedAt?: string;
 	overall: {
 		changfamilyPoints: number;
 		storeRank: number;
@@ -301,6 +321,7 @@ export async function GET(request: NextRequest) {
 
 	try {
 		const token = await getToken(SA_EMAIL, SA_KEY);
+		const dataUpdatedAt = await fetchSheetModifiedTime(SHEET_ID, token);
 		const tabName =
 			SHEET_NAME ??
 			(SHEET_GID
@@ -388,11 +409,12 @@ export async function GET(request: NextRequest) {
 			storeCode,
 			storeName,
 			regionName: REGION_NAME,
-			generatedAt: new Date().toLocaleDateString("en-GB", {
-				day: "numeric",
-				month: "short",
-				year: "numeric",
-			}),
+			dataUpdatedAt: dataUpdatedAt ?? undefined,
+			generatedAt: (() => {
+				const now = new Date(new Date().getTime() + 7 * 60 * 60 * 1000);
+				const p = (n: number) => String(n).padStart(2, "0");
+				return `${p(now.getUTCDate())}-${p(now.getUTCMonth() + 1)}-${now.getUTCFullYear()} ${p(now.getUTCHours())}:${p(now.getUTCMinutes())}:${p(now.getUTCSeconds())}`;
+			})(),
 			overall: {
 				changfamilyPoints: parseNum(storeRow[ci.overallPts]),
 				...rankRows(rows, ci.id, ci.name, ci.total, storeId, 10),

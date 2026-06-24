@@ -25,6 +25,7 @@ interface RankResult {
 	storeName: string;
 	regionName: string;
 	generatedAt: string;
+	dataUpdatedAt?: string;
 	overall: {
 		changfamilyPoints: number;
 		storeRank: number;
@@ -246,7 +247,8 @@ export default function Home() {
 						<span className="header-trophy">🏆</span>
 						<div className="header-title">
 							<h1>Top Rank Western Big Deal Fair 2026</h1>
-							<p>วันที่ 1 – 15 กรกฎาคม 2569</p>
+							<p>วันที่ 1 – 31 กรกฎาคม 2569</p>
+							<p>ประกาศวันที่สิ้นสุด 15 สิงหาคม 2569</p>
 						</div>
 					</div>
 					<div className="header-store">
@@ -273,7 +275,15 @@ export default function Home() {
 					<button className="btn-back" onClick={handleReset}>
 						← ค้นหาใหม่
 					</button>
-					<span>Generated: {result.generatedAt}</span>
+					<div style={{ textAlign: "right", lineHeight: 1.5 }}>
+						{result.dataUpdatedAt ? (
+							<div style={{ fontSize: "0.75rem", color: "#6B7280" }}>
+								อัปเดตล่าสุด: {result.dataUpdatedAt}
+							</div>
+						) : (
+							<span>อัปเดตล่าสุด: {result.generatedAt}</span>
+						)}
+					</div>
 				</div>
 			</div>
 		);
