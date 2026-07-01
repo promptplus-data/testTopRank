@@ -404,6 +404,10 @@ export async function GET(request: NextRequest) {
 		const storeId = storeRow[ci.id] ?? code.toUpperCase();
 		const province = storeRow[ci.province] ?? "";
 
+		const overallRank = rankRows(rows, ci.id, ci.name, ci.total, storeId, 10);
+		const cementRank = rankRows(rows, ci.id, ci.name, ci.cement, storeId, 5, province, ci.province);
+		const housingRank = rankRows(rows, ci.id, ci.name, ci.housing, storeId, 1, province, ci.province);
+
 		const result: SearchResult = {
 			storeId: storeId.toUpperCase(),
 			storeCode,
@@ -416,8 +420,10 @@ export async function GET(request: NextRequest) {
 				return `${p(now.getUTCDate())}-${p(now.getUTCMonth() + 1)}-${now.getUTCFullYear()} ${p(now.getUTCHours())}:${p(now.getUTCMinutes())}:${p(now.getUTCSeconds())}`;
 			})(),
 			overall: {
-				changfamilyPoints: parseNum(storeRow[ci.overallPts]),
-				...rankRows(rows, ci.id, ci.name, ci.total, storeId, 10),
+				changfamilyPoints: overallRank.storeRank > 0 && overallRank.storeRank <= 10
+					? parseNum(storeRow[ci.overallPts])
+					: 0,
+				...overallRank,
 			},
 			categories: [
 				{
@@ -425,34 +431,20 @@ export async function GET(request: NextRequest) {
 					name: "ซีเมนต์",
 					province: `จ.${province}`,
 					limit: 5,
-					changfamilyPoints: parseNum(storeRow[ci.cementPts]),
-					...rankRows(
-						rows,
-						ci.id,
-						ci.name,
-						ci.cement,
-						storeId,
-						5,
-						province,
-						ci.province,
-					),
+					changfamilyPoints: cementRank.storeRank > 0 && cementRank.storeRank <= 5
+						? parseNum(storeRow[ci.cementPts])
+						: 0,
+					...cementRank,
 				},
 				{
 					id: "housing",
 					name: "หลังคาฝาฝ้า",
 					province: `จ.${province}`,
 					limit: 1,
-					changfamilyPoints: parseNum(storeRow[ci.housingPts]),
-					...rankRows(
-						rows,
-						ci.id,
-						ci.name,
-						ci.housing,
-						storeId,
-						1,
-						province,
-						ci.province,
-					),
+					changfamilyPoints: housingRank.storeRank > 0 && housingRank.storeRank <= 1
+						? parseNum(storeRow[ci.housingPts])
+						: 0,
+					...housingRank,
 				},
 			],
 		};
